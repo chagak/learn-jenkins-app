@@ -2,7 +2,10 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        // This is a comment
+        /* All this line is comment out
+        */
+        /*stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -20,7 +23,7 @@ pipeline {
             '''
               
             }
-        }
+        }*/
         stage('Test') {
             agent {
                 docker {
