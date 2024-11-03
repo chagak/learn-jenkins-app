@@ -2,9 +2,11 @@ pipeline {
     agent any
 
     stages {
-    
+        // This is a comment
+        /* This is a multi-line comment
+        */
 
-        stage('Build') {
+        /*stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -21,31 +23,39 @@ pipeline {
                     ls -la
                 '''
             }
+        }*/
+
+        stage('Lint') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm install eslint
+                    npx eslint . || exit 0  # Exit 0 to prevent job failure if lint errors are found
+                '''
+            }
         }
 
-        stage('Tests') {
+        stage('Run Test') {
             parallel {
-                stage('Unit tests') {
+                stage('Test') {
                     agent {
                         docker {
                             image 'node:18-alpine'
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
-                            #test -f build/index.html
+                            test -f build/index.html
                             npm test
                         '''
                     }
-                    post {
-                        always {
-                            junit 'jest-results/junit.xml'
-                        }
-                    }
                 }
-
                 stage('E2E') {
                     agent {
                         docker {
@@ -53,23 +63,23 @@ pipeline {
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
                             npm install serve
                             node_modules/.bin/serve -s build &
                             sleep 10
-                            npx playwright test  --reporter=html
+                            npx playwright test --reporter=html
                         '''
-                    }
-
-                    post {
-                        always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                        }
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            junit 'jest-results/junit.xml'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
