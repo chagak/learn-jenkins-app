@@ -102,12 +102,12 @@ pipeline {
             }
             steps {
                 sh '''
-                    echo 'small change'
-                    npm install netlify-cli
+                    npm install netlify-cli node-jp
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build
+                    node_modules/.bin/netlify deploy --dir=build > deploy-output.json
+                    node_modules/.bin/node-jp -r '.deploy_url' deploy-output.json
                 '''
             }
         }
