@@ -16,7 +16,7 @@ function App() {
         </a>
       </header>
       <p>
-          Application version: 1
+          Application version: {PerformanceObserverEntryList.env.REACT_APP_VERSION}
       </p>
     </div>
   );
