@@ -97,13 +97,16 @@ pipeline {
 
             steps {
                 sh '''
-                netlify --version
+                    npm install netlify-cli node-jq
+                    netlify --version
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
                     netlify status
                     netlify deploy --dir=build --json > deploy-output.json
-                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-output.json)
                     npx playwright test  --reporter=html
                 '''
+                script {
+                    env.CI_ENVIRONMENT_URL = sh(script: "node-jq -r '.deploy_url' deploy-output.json", returnStdout: true).trim()
+                }
             }
 
             post {
