@@ -12,11 +12,11 @@ pipeline {
                 docker {
                     image 'amazon/aws-cli'
                 }
+            }
             step {
                 sh '''
                     aws --version
             '''
-            }
             }
         }
         stage('Build') {
